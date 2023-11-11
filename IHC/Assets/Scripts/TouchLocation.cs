@@ -4,16 +4,17 @@ using UnityEngine;
 
 public class TouchLocation {
     public int touchId;
-
+    public int interval;
     public Vector2 positionBegan;
 
     public TouchLocation(int newTouchId, Vector2 touchBegan){
         this.touchId = newTouchId;
         this.positionBegan = touchBegan;
+        this.interval = 10;
     }	
 
     public Vector2 direction(Vector2 touchEnded){
-        if ((this.positionBegan.x >= touchEnded.x - 2 && this.positionBegan.x <= touchEnded.x + 2) && (this.positionBegan.y >= touchEnded.y - 2 && this.positionBegan.y <= touchEnded.y + 2)){
+        if ((this.positionBegan.x >= touchEnded.x - this.interval && this.positionBegan.x <= touchEnded.x + this.interval) && (this.positionBegan.y >= touchEnded.y - this.interval && this.positionBegan.y <= touchEnded.y + this.interval)){
             return Vector2.zero;
         }
         if (Mathf.Abs(touchEnded.x - this.positionBegan.x) > Mathf.Abs(touchEnded.y - this.positionBegan.y))
