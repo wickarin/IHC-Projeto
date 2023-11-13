@@ -7,7 +7,7 @@ using System;
 public class MultipleTouch : MonoBehaviour {
 
     [SerializeField]
-    int vida;
+    public int vida;
     [SerializeField]
     int xp;
 
@@ -21,6 +21,7 @@ public class MultipleTouch : MonoBehaviour {
     MultipleTouch player_collided;
     float last_c;
     public float debounce_t;
+
     // Inicializamos as variáveis no que nós queremos
     void Start(){
         this.vida = 100;
@@ -28,8 +29,7 @@ public class MultipleTouch : MonoBehaviour {
         this.checking = true;
         this.help = 0;
         this.last_c = 0f;
-        this.debounce_t = 0.5f;
-
+        this.debounce_t = 0.5f; 
     }
 
 	// Está constantemente a executar
@@ -112,23 +112,7 @@ public class MultipleTouch : MonoBehaviour {
                         if (DEBUG_MODE) Debug.Log("Clique fora da camara!");
                     }
                 }
-                
-                // Collider2D myCollider = GetComponent<Collider2D>();
-                // if (myCollider.OverlapPoint(thisTouch.positionBegan)) {
-                //     if (DEBUG_MODE) Debug.Log("HORA DE MEXER: Clique dentro do GameObject " + myCollider.tag);
-
-                //     // Para onde mexer, usamos a posição final e inicial do dedo para identificar a direção, se forem iguais é clique
-                //     movimento = thisTouch.direction(t.position);
-                //     if (movimento != Vector2.zero) transform.position = (Vector2)transform.position + movimento;
-                //     else Debug.Log("CLIQUE");
-                // }
-                
-                
             }
-            //else if(t.phase == TouchPhase.Moved){
-            //     if (DEBUG_MODE) Debug.Log("touch is moving");
-            //     TouchLocation thisTouch = touches.Find(TouchLocation => TouchLocation.touchId == t.fingerId);
-            // }
             ++i;
         }
         if ((this.help != 0) && (Time.time - last_c > debounce_t)) {
@@ -144,7 +128,6 @@ public class MultipleTouch : MonoBehaviour {
                 case 3:
                     this.saveXP();
                     this.updateVida();
-                    Debug.Log("Save: Xp = " + this.xp + " Life = " + this.vida);
                     break;
                 case 4:
                     Debug.Log("Fight");
@@ -179,9 +162,7 @@ public class MultipleTouch : MonoBehaviour {
 	}
 
     private void saveXP(){
-        Debug.Log(this.xp);
         this.xp += (int)(this.vida / 2);
-        Debug.Log(this.xp);
     }
 
     private void updateVida(){
@@ -211,6 +192,9 @@ public class MultipleTouch : MonoBehaviour {
         int help = this.vida;
         if (randomNumber() <= chance_1){
             this.vida += (int)(player_collided.vida/2);
+            if (this.vida > 100){
+                this.vida = 100;
+            }
             player_collided.vida -= (int)(player_collided.vida/2);
         } else {
             this.vida -= (int)(help/2);
@@ -226,6 +210,9 @@ public class MultipleTouch : MonoBehaviour {
         int chance = 25;
         if (randomNumber() <= chance) {
             this.vida += (int) (0.25 * player_collided.vida);
+            if (this.vida > 100){
+                this.vida = 100;
+            }
             player_collided.vida -= (int) (0.25 * player_collided.vida);
         } else {
             // Dies
@@ -240,12 +227,18 @@ public class MultipleTouch : MonoBehaviour {
     private void share() {
         int hp_transfer = this.vida/2;
         this.vida = (int)(this.vida/2) +  (int)(player_collided.vida/2);
+        if (this.vida > 100){
+            this.vida = 100;
+        }
         player_collided.vida = (int)(player_collided.vida/2) + (int)hp_transfer;
     }
 
     private void harvest() {
         int x = (int)Math.Floor(transform.position.x), y = (int)Math.Floor(transform.position.y);
         this.vida += DebugTilemap.harvestHP(x, y);
+        if (this.vida > 100){
+            this.vida = 100;
+        }
     }
 
     private void sow() {
