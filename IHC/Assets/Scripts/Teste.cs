@@ -8,15 +8,32 @@ public class Teste : MonoBehaviour {
 
     int vida;
     int xp;
+    private AudioSource audioSource;
+    public AudioClip sound1;  // Atribua seus clipes de áudio na Unity Editor
+    public AudioClip sound2;
+
     public bool checking = true;
     void Start(){
         Debug.Log("Yha Teste");
         vida = 100;
         xp = 0;
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void setBool() {
         checking = true;
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        // Verifica se o áudio não está reproduzindo para evitar sobreposição
+        if (!audioSource.isPlaying)
+        {
+            // Atribui o novo áudio ao AudioSource
+            audioSource.clip = clip;
+            // Reproduz o áudio
+            audioSource.Play();
+        }
     }
 
 	// Update is called once per frame
@@ -39,6 +56,7 @@ public class Teste : MonoBehaviour {
                         // Não há colisão, então mova o jogador
                         //transform.position = newPosition;
                         Debug.Log("BATEU NO JOGADOR");
+                        PlaySound(sound1);
                     }
                     else if (Physics2D.OverlapCircle(newPosition, myCollider.bounds.extents.x, LayerMask.GetMask("Wall"))) {
                         Debug.Log("BATEU NA PAREDE");
@@ -53,7 +71,11 @@ public class Teste : MonoBehaviour {
                         // }
                         Debug.Log("Checking: " + checking);
                         Debug.Log("Spawn Menu " + myCollider);
-                        
+                        // audioSource.Play();
+                        // AudioManager.HarvestSound();
+                       // AudioManager.HarvestSound();
+                       PlaySound(sound1);
+                       //PlaySound(sound2);
                     }
                 }
             }     

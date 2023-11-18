@@ -22,8 +22,20 @@ public class MultipleTouch : MonoBehaviour {
     float last_c;
     public float debounce_t;
 
+    private AudioSource audioSource;
+    public AudioClip HarvestSound;
+    public AudioClip SowSound;
+    public AudioClip SafeSound;
+    public AudioClip FightSound;
+    public AudioClip StealSound;
+    public AudioClip FleeSound;
+    public AudioClip ShareSound;
+    public AudioClip WalkSound;
+    public AudioClip MorreuSound;
+
     // Inicializamos as variáveis no que nós queremos
     void Start(){
+        this.DEBUG_MODE = false;
         this.vida = 100;
         this.xp = 0;
         this.checking = true;
@@ -36,7 +48,6 @@ public class MultipleTouch : MonoBehaviour {
 	void Update () {
 
         // Iteramos por todos os toques (multitouch)
-        //Debug.Log(Time.time - last_c > debounce_t);
         int i = 0;
         while(i < Input.touchCount){
             // Debug.Log(Input.touchCount);
@@ -57,11 +68,6 @@ public class MultipleTouch : MonoBehaviour {
 
                 // Vamos buscar o toque que guardamos e removê-lo da lista de toques ativos
                 TouchLocation thisTouch = touches.Find(TouchLocation => TouchLocation.touchId == t.fingerId);
-                if (thisTouch == null){
-                    Debug.Log(thisTouch.touchId + " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    continue;
-                }
-                Debug.Log(thisTouch.touchId);
                 touches.RemoveAt(touches.IndexOf(thisTouch));
                 
                 // Identificar a câmara em que estamos
@@ -91,21 +97,28 @@ public class MultipleTouch : MonoBehaviour {
                             Collider2D myCollider = GetComponent<Collider2D>();
 
                             if (Physics2D.OverlapCircle(newPosition, myCollider.bounds.extents.x, LayerMask.GetMask("Player")) && (Time.time - last_c > debounce_t)){
-                                Debug.Log(playerCamera + " Bateu " + Physics2D.OverlapCircle(newPosition, myCollider.bounds.extents.x, LayerMask.GetMask("Player")).gameObject);
                                 player_collided = Physics2D.OverlapCircle(newPosition, myCollider.bounds.extents.x, LayerMask.GetMask("Player")).gameObject.GetComponent<MultipleTouch>();
-                                //collided.GetComponent<MultipleTouch>().vida -= 10; 
                                 transform.position = newPosition;
                                 RadialMenuSpawner.ins.SpawnMenu(playerCamera.WorldToScreenPoint(transform.position), this, 1);
                                 checking = false;
                                 last_c = Time.time;
+
+                                // Toca a música
+                                playSound(WalkSound);
                             }
                             else if (Physics2D.OverlapCircle(newPosition, myCollider.bounds.extents.x, LayerMask.GetMask("Wall"))){
                                 if (DEBUG_MODE) Debug.Log("WALL");
                                 this.vida -= 1;
+
+                                // Toca a música
+                                playSound(WalkSound);
                             }
                             else {
                                 transform.position = newPosition;
                                 this.vida -= 1;
+
+                                // Toca a música
+                                playSound(WalkSound);
                             }
                         }
                     } else {
@@ -118,35 +131,41 @@ public class MultipleTouch : MonoBehaviour {
         if ((this.help != 0) && (Time.time - last_c > debounce_t)) {
             switch(help){
                 case 1:
-                    Debug.Log("Harvest");
+                    if (DEBUG_MODE) Debug.Log("Harvest");
                     this.harvest();
+                    playSound(HarvestSound);
                     break;
                 case 2:
-                    Debug.Log("Sow");
+                    if (DEBUG_MODE) Debug.Log("Sow");
                     this.sow();
+                    playSound(SowSound);
                     break;
                 case 3:
                     this.saveXP();
                     this.updateVida();
+                    playSound(SafeSound);
                     break;
                 case 4:
-                    Debug.Log("Fight");
+                    if (DEBUG_MODE) Debug.Log("Fight");
                     this.fight();
+                    playSound(FightSound);
                     break;
                 case 5:
-                    Debug.Log("Steal");
+                    if (DEBUG_MODE) Debug.Log("Steal");
                     this.steal();
+                    playSound(StealSound);
                     break;
                 case 6:
-                    Debug.Log("Flee");
-
+                    if (DEBUG_MODE) Debug.Log("Flee");
+                    playSound(FleeSound);
                     break;
                 case 7:
-                    Debug.Log("Share");
+                    if (DEBUG_MODE) Debug.Log("Share");
                     this.share();
+                    playSound(ShareSound);
                     break;
                 default :
-                    Debug.Log("GG");
+                    if (DEBUG_MODE) Debug.Log("GG");
                     break;
             }
             checking = true;
@@ -154,6 +173,7 @@ public class MultipleTouch : MonoBehaviour {
             last_c = Time.time;
         }
         if (this.vida == 0) {
+            playSound(MorreuSound);
             UnityEngine.Rendering.Universal.Light2D player_light = GetComponent<UnityEngine.Rendering.Universal.Light2D>();
             player_light.intensity = 0f;
             gameObject.SetActive(false);
@@ -217,7 +237,7 @@ public class MultipleTouch : MonoBehaviour {
         } else {
             // Dies
             gameObject.SetActive(false);
-            Destroy(gameObject);
+            //Destroy(gameObject);
             UnityEngine.Rendering.Universal.Light2D player_light = GetComponent<UnityEngine.Rendering.Universal.Light2D>();
             player_light.intensity = 0f;
         
@@ -244,7 +264,20 @@ public class MultipleTouch : MonoBehaviour {
     private void sow() {
         int x = (int)Math.Floor(transform.position.x), y = (int)Math.Floor(transform.position.y);
         int health_taken = (int)(this.vida * 0.3);
+        this.vida -= (int)(this.vida * 0.3);
         DebugTilemap.sowHP(x, y, health_taken);
+    }
+
+    void playSound(AudioClip clip)
+    {
+        // Verifica se o áudio não está reproduzindo para evitar sobreposição
+        if (!audioSource.isPlaying)
+        {
+            // Atribui o novo áudio ao AudioSource
+            audioSource.clip = clip;
+            // Reproduz o áudio
+            audioSource.Play();
+        }
     }
 
 }
