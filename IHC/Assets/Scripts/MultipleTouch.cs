@@ -42,6 +42,7 @@ public class MultipleTouch : MonoBehaviour {
         this.help = 0;
         this.last_c = 0f;
         this.debounce_t = 0.5f; 
+        this.audioSource = GetComponent<AudioSource>();
     }
 
 	// Está constantemente a executar
